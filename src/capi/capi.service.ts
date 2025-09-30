@@ -8,6 +8,8 @@ import { firstValueFrom } from 'rxjs'
 @Injectable()
 export class MetaCapiService {
 	private readonly logger = new Logger(MetaCapiService.name)
+	private readonly API_VERSION = 'v23.0'
+	private readonly GRAPH_API_URL = `https://graph.facebook.com/${this.API_VERSION}`
 
 	constructor(
 		private readonly httpService: HttpService,
@@ -97,7 +99,7 @@ export class MetaCapiService {
 			}
 
 			const response = this.httpService.post<MetaCapiResponse>(
-				`https://graph.facebook.com/v23.0/${pixelId}/events?access_token=${accessToken}`,
+				`${this.GRAPH_API_URL}/${pixelId}/events?access_token=${accessToken}`,
 				formData.toString(),
 				{ headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
 			)
