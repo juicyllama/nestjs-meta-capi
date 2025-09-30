@@ -9,4 +9,9 @@ export class SandboxController {
 	async sendTestEvent() {
 		return this.sandboxService.sendTestEvent()
 	}
+
+	@Get('test-event-secondary-pixel')
+	async sendTestEventToDifferentPixel() {
+		return this.sandboxService.sendTestEventToDifferentPixel()
+	}
 }

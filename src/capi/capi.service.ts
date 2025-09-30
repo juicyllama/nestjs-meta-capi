@@ -13,10 +13,9 @@ export class MetaCapiService {
 		private readonly httpService: HttpService,
 		@Inject(META_CAPI_CONFIG_TOKEN) private readonly config: MetaCapiConfig,
 	) {
+		const pixelKeys = Object.keys(config.pixels)
 		this.logger.log(
-			`MetaCapiService created with pixelId: ${config.pixelId}, accessToken: ${
-				config.accessToken ? '***' + config.accessToken.slice(-4) : 'undefined'
-			}`,
+			`MetaCapiService created with pixels: ${pixelKeys.join(', ')}, default: ${config.defaultPixel || pixelKeys[0]}`,
 		)
 	}
 
@@ -49,8 +48,20 @@ export class MetaCapiService {
 		return randomUUID()
 	}
 
-	private async sendEvent(eventName: string, eventData: MetaCapiEventData, test_event_code?: string) {
-		const { pixelId, accessToken } = this.config
+	private async sendEvent(
+		eventName: string,
+		eventData: MetaCapiEventData,
+		test_event_code?: string,
+		pixelKey?: string,
+	) {
+		const pixelKeyToUse = pixelKey || this.config.defaultPixel || Object.keys(this.config.pixels)[0]
+		const pixelConfig = this.config.pixels[pixelKeyToUse]
+
+		if (!pixelConfig) {
+			throw new Error(`Pixel configuration not found for key: ${pixelKeyToUse}`)
+		}
+
+		const { pixelId, accessToken } = pixelConfig
 		const userData = this.normalizeUserData(eventData)
 
 		const customData: MetaCapiCustomData = {}
@@ -101,37 +112,37 @@ export class MetaCapiService {
 	}
 
 	// event helpers
-	trackPageView(eventData: MetaCapiEventData) {
-		return this.sendEvent('PageView', eventData)
+	trackPageView(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('PageView', eventData, undefined, pixelKey)
 	}
-	trackLead(eventData: MetaCapiEventData) {
-		return this.sendEvent('Lead', eventData)
+	trackLead(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('Lead', eventData, undefined, pixelKey)
 	}
-	trackViewContent(eventData: MetaCapiEventData) {
-		return this.sendEvent('ViewContent', eventData)
+	trackViewContent(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('ViewContent', eventData, undefined, pixelKey)
 	}
-	trackAddToCart(eventData: MetaCapiEventData) {
-		return this.sendEvent('AddToCart', eventData)
+	trackAddToCart(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('AddToCart', eventData, undefined, pixelKey)
 	}
-	trackInitiateCheckout(eventData: MetaCapiEventData) {
-		return this.sendEvent('InitiateCheckout', eventData)
+	trackInitiateCheckout(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('InitiateCheckout', eventData, undefined, pixelKey)
 	}
-	trackPurchase(eventData: MetaCapiEventData) {
-		return this.sendEvent('Purchase', eventData)
+	trackPurchase(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('Purchase', eventData, undefined, pixelKey)
 	}
-	trackUpsellPurchase(eventData: MetaCapiEventData) {
-		return this.sendEvent('UpsellPurchase', eventData)
+	trackUpsellPurchase(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('UpsellPurchase', eventData, undefined, pixelKey)
 	}
-	trackRebillSuccess(eventData: MetaCapiEventData) {
-		return this.sendEvent('RebillSuccess', eventData)
+	trackRebillSuccess(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('RebillSuccess', eventData, undefined, pixelKey)
 	}
-	trackSubscribe(eventData: MetaCapiEventData) {
-		return this.sendEvent('Subscribe', eventData)
+	trackSubscribe(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('Subscribe', eventData, undefined, pixelKey)
 	}
-	trackAddPaymentInfo(eventData: MetaCapiEventData) {
-		return this.sendEvent('AddPaymentInfo', eventData)
+	trackAddPaymentInfo(eventData: MetaCapiEventData, pixelKey?: string) {
+		return this.sendEvent('AddPaymentInfo', eventData, undefined, pixelKey)
 	}
-	testEvent(eventData: MetaCapiEventData, test_event_code: string) {
-		return this.sendEvent('TestEvent', eventData, test_event_code)
+	testEvent(eventData: MetaCapiEventData, test_event_code: string, pixelKey?: string) {
+		return this.sendEvent('TestEvent', eventData, test_event_code, pixelKey)
 	}
 }

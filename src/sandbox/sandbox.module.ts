@@ -15,8 +15,17 @@ dotenv.config()
 			envFilePath: '.env',
 		}),
 		MetaCapiModule.forRoot({
-			pixelId: process.env.META_PIXEL_ID || 'test_pixel_id',
-			accessToken: process.env.FACEBOOK_ACCESS_TOKEN || 'test_token',
+			pixels: {
+				default: {
+					pixelId: process.env.META_PIXEL_ID || 'test_pixel_id',
+					accessToken: process.env.FACEBOOK_ACCESS_TOKEN || 'test_token',
+				},
+				secondary: {
+					pixelId: process.env.META_PIXEL_ID_2 || 'test_pixel_id_2',
+					accessToken: process.env.FACEBOOK_ACCESS_TOKEN_2 || 'test_token_2',
+				},
+			},
+			defaultPixel: 'default',
 		}),
 	],
 	providers: [SandboxService],

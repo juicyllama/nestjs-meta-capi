@@ -60,7 +60,12 @@ export interface MetaCapiResponse {
 	fbtrace_id: string
 }
 
-export interface MetaCapiConfig {
+export interface MetaCapiPixelConfig {
 	pixelId: string
 	accessToken: string
+}
+
+export interface MetaCapiConfig {
+	pixels: Record<string, MetaCapiPixelConfig>
+	defaultPixel?: string
 }
