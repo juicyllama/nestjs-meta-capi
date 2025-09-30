@@ -1,0 +1,1 @@
+export const META_CAPI_CONFIG_TOKEN = Symbol('META_CAPI_CONFIG_TOKEN')

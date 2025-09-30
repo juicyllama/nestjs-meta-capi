@@ -1,5 +1,7 @@
 import { MetaCapiService } from './capi.service'
+import { META_CAPI_CONFIG_TOKEN } from './capi.tokens'
 import { MetaCapiConfig } from './capi.types'
+import { HttpModule } from '@nestjs/axios'
 import { DynamicModule, Global, Module } from '@nestjs/common'
 
 @Global()
@@ -8,25 +10,22 @@ export class MetaCapiModule {
 	static forRoot(config: MetaCapiConfig): DynamicModule {
 		return {
 			module: MetaCapiModule,
-			providers: [
-				{
-					provide: MetaCapiService,
-					useValue: new MetaCapiService(config),
-				},
-			],
+			imports: [HttpModule],
+			providers: [MetaCapiService, { provide: META_CAPI_CONFIG_TOKEN, useValue: config }],
 			exports: [MetaCapiService],
 		}
 	}
 
-	static forRootAsync(configProvider: any): DynamicModule {
+	static forRootAsync(options: {
+		inject: any[]
+		useFactory: (...args: any[]) => Promise<MetaCapiConfig> | MetaCapiConfig
+	}): DynamicModule {
 		return {
 			module: MetaCapiModule,
+			imports: [HttpModule],
 			providers: [
-				{
-					provide: MetaCapiService,
-					useFactory: (config: MetaCapiConfig) => new MetaCapiService(config),
-					inject: [configProvider],
-				},
+				MetaCapiService,
+				{ provide: META_CAPI_CONFIG_TOKEN, useFactory: options.useFactory, inject: options.inject },
 			],
 			exports: [MetaCapiService],
 		}

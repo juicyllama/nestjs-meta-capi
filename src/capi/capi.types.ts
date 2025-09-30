@@ -54,6 +54,12 @@ export interface MetaCapiCustomData {
 	num_items?: number
 }
 
+export interface MetaCapiResponse {
+	events_received: number
+	messages: string[]
+	fbtrace_id: string
+}
+
 export interface MetaCapiConfig {
 	pixelId: string
 	accessToken: string

@@ -5,8 +5,8 @@ import { Controller, Get } from '@nestjs/common'
 export class SandboxController {
 	constructor(private readonly sandboxService: SandboxService) {}
 
-	@Get()
-	async sandbox(): Promise<any> {
-		return await this.sandboxService.run()
+	@Get('test-event')
+	async sendTestEvent() {
+		return this.sandboxService.sendTestEvent()
 	}
 }

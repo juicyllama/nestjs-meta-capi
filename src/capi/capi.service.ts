@@ -1,22 +1,23 @@
-import { MetaCapiEventData, MetaCapiConfig, MetaCapiUserData, MetaCapiCustomData } from './capi.types'
-import { Injectable, Logger } from '@nestjs/common'
-import axios, { AxiosInstance } from 'axios'
+import { META_CAPI_CONFIG_TOKEN } from './capi.tokens'
+import { MetaCapiConfig, MetaCapiEventData, MetaCapiUserData, MetaCapiCustomData, MetaCapiResponse } from './capi.types'
+import { HttpService } from '@nestjs/axios'
+import { Injectable, Inject, Logger } from '@nestjs/common'
 import { createHash, randomUUID } from 'crypto'
+import { firstValueFrom } from 'rxjs'
 
 @Injectable()
 export class MetaCapiService {
-	protected readonly httpClient: AxiosInstance
 	private readonly logger = new Logger(MetaCapiService.name)
-	private readonly pixelId: string
-	private readonly accessToken: string
 
-	constructor(config: MetaCapiConfig) {
-		this.pixelId = config.pixelId
-		this.accessToken = config.accessToken
-		this.httpClient = axios.create({
-			baseURL: 'https://graph.facebook.com/v18.0', // Use latest stable, or v10.0 for parity
-			timeout: 10000,
-		})
+	constructor(
+		private readonly httpService: HttpService,
+		@Inject(META_CAPI_CONFIG_TOKEN) private readonly config: MetaCapiConfig,
+	) {
+		this.logger.log(
+			`MetaCapiService created with pixelId: ${config.pixelId}, accessToken: ${
+				config.accessToken ? '***' + config.accessToken.slice(-4) : 'undefined'
+			}`,
+		)
 	}
 
 	private hash(data: string): string {
@@ -33,22 +34,25 @@ export class MetaCapiService {
 		if (eventData.st) userData.st = this.hash(eventData.st.toLowerCase().trim())
 		if (eventData.country) userData.country = this.hash(eventData.country.toUpperCase())
 		if (eventData.zp) userData.zp = this.hash(eventData.zp)
-		if (eventData.ge) userData.ge = eventData.ge // gender as is
+
+		if (eventData.ge) userData.ge = eventData.ge
 		if (eventData.external_id) userData.external_id = eventData.external_id
 		if (eventData.fbc) userData.fbc = eventData.fbc
 		if (eventData.fbp) userData.fbp = eventData.fbp
 		if (eventData.client_ip_address) userData.client_ip_address = eventData.client_ip_address
 		if (eventData.userAgent) userData.client_user_agent = eventData.userAgent
+
 		return userData
 	}
 
 	private generateEventId(): string {
-		// Generate a unique event ID
-		return randomUUID() // For uniqueness
+		return randomUUID()
 	}
 
-	private async sendEvent(eventName: string, eventData: MetaCapiEventData) {
+	private async sendEvent(eventName: string, eventData: MetaCapiEventData, test_event_code?: string) {
+		const { pixelId, accessToken } = this.config
 		const userData = this.normalizeUserData(eventData)
+
 		const customData: MetaCapiCustomData = {}
 		if (eventData.value) customData.value = eventData.value
 		if (eventData.currency) customData.currency = eventData.currency
@@ -62,64 +66,72 @@ export class MetaCapiService {
 		const payload = {
 			data: [
 				{
+					action_source: 'website',
+					event_id: eventData.event_id || this.generateEventId(),
 					event_name: eventName,
 					event_time: Math.floor(Date.now() / 1000),
-					event_id: eventData.event_id || this.generateEventId(),
 					user_data: userData,
 					custom_data: customData,
 					event_source_url: eventData.event_source_url,
 				},
 			],
-			access_token: this.accessToken,
+			test_event_code,
 		}
 
 		try {
-			const response = await this.httpClient.post(`/${this.pixelId}/events`, payload)
-			this.logger.log(`Event ${eventName} sent successfully: ${response.status}`)
-			return response.data
+			const formData = new URLSearchParams()
+			formData.append('data', JSON.stringify(payload.data))
+			if (payload.test_event_code) {
+				formData.append('test_event_code', payload.test_event_code)
+			}
+
+			const response = this.httpService.post<MetaCapiResponse>(
+				`https://graph.facebook.com/v23.0/${pixelId}/events?access_token=${accessToken}`,
+				formData.toString(),
+				{ headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+			)
+
+			const data = await firstValueFrom(response)
+			this.logger.log(`Event ${eventName} sent successfully: ${JSON.stringify(data.data)}`)
+			return data.data
 		} catch (error) {
 			this.logger.error(`Error sending event ${eventName}: ${(error as Error).message}`)
 			throw error
 		}
 	}
 
-	async trackPageView(eventData: MetaCapiEventData) {
+	// event helpers
+	trackPageView(eventData: MetaCapiEventData) {
 		return this.sendEvent('PageView', eventData)
 	}
-
-	async trackLead(eventData: MetaCapiEventData) {
+	trackLead(eventData: MetaCapiEventData) {
 		return this.sendEvent('Lead', eventData)
 	}
-
-	async trackViewContent(eventData: MetaCapiEventData) {
+	trackViewContent(eventData: MetaCapiEventData) {
 		return this.sendEvent('ViewContent', eventData)
 	}
-
-	async trackAddToCart(eventData: MetaCapiEventData) {
+	trackAddToCart(eventData: MetaCapiEventData) {
 		return this.sendEvent('AddToCart', eventData)
 	}
-
-	async trackInitiateCheckout(eventData: MetaCapiEventData) {
+	trackInitiateCheckout(eventData: MetaCapiEventData) {
 		return this.sendEvent('InitiateCheckout', eventData)
 	}
-
-	async trackPurchase(eventData: MetaCapiEventData) {
+	trackPurchase(eventData: MetaCapiEventData) {
 		return this.sendEvent('Purchase', eventData)
 	}
-
-	async trackUpsellPurchase(eventData: MetaCapiEventData) {
+	trackUpsellPurchase(eventData: MetaCapiEventData) {
 		return this.sendEvent('UpsellPurchase', eventData)
 	}
-
-	async trackRebillSuccess(eventData: MetaCapiEventData) {
+	trackRebillSuccess(eventData: MetaCapiEventData) {
 		return this.sendEvent('RebillSuccess', eventData)
 	}
-
-	async trackSubscribe(eventData: MetaCapiEventData) {
+	trackSubscribe(eventData: MetaCapiEventData) {
 		return this.sendEvent('Subscribe', eventData)
 	}
-
-	async trackAddPaymentInfo(eventData: MetaCapiEventData) {
+	trackAddPaymentInfo(eventData: MetaCapiEventData) {
 		return this.sendEvent('AddPaymentInfo', eventData)
+	}
+	testEvent(eventData: MetaCapiEventData, test_event_code: string) {
+		return this.sendEvent('TestEvent', eventData, test_event_code)
 	}
 }
