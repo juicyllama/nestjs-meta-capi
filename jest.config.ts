@@ -7,13 +7,15 @@ module.exports = {
 	forceExit: true,
 	rootDir: 'src',
 	testTimeout: 120000,
-	testRegex: [/.*\.spec\.ts$/],
+	// fix: use string instead of RegExp object
+	testRegex: '.*\\.spec\\.ts$',
 	moduleNameMapper: {
 		'^@/(.*)$': '<rootDir>/$1',
 		'^@config/(.*)$': '<rootDir>/config/$1',
 	},
 	transform: {
-		'^.+\\.{ts|tsx}?$': [
+		'^.+\\.(ts|tsx)$': [
+			// fix regex syntax
 			'ts-jest',
 			{
 				babel: true,
