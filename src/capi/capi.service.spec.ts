@@ -236,7 +236,7 @@ describe('MetaCapiService', () => {
 		it('should send test event with test_event_code', async () => {
 			httpService.post.mockReturnValue(of(mockResponse))
 
-			const result = await service.testEvent(mockEventData, 'test123')
+			const result = await service.trackPageView(mockEventData, 'default', 'test123')
 
 			expect(httpService.post).toHaveBeenCalled()
 			expect(result).toEqual(mockResponse.data)
@@ -245,7 +245,7 @@ describe('MetaCapiService', () => {
 		it('should include test_event_code in form data', async () => {
 			httpService.post.mockReturnValue(of(mockResponse))
 
-			await service.testEvent(mockEventData, 'test123')
+			await service.trackPageView(mockEventData, 'default', 'test123')
 
 			const callArgs = httpService.post.mock.calls[0]
 			const formDataString = callArgs[1] as string
