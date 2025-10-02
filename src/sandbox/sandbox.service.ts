@@ -41,11 +41,12 @@ export class SandboxService {
 
 	async sendTestEvent() {
 		this.logger.log('Sending test event...')
-		const res = await this.metaCapiService.testEvent(
+		const res = await this.metaCapiService.trackPageView(
 			{
 				em: '<USER_EMAIL>',
 			},
-			'TEST47858',
+			'default',
+			'TEST61141',
 		)
 		this.logger.log('Test event sent.', JSON.stringify(res))
 		return res
@@ -53,12 +54,12 @@ export class SandboxService {
 
 	async sendTestEventToDifferentPixel() {
 		this.logger.log('Sending test event to secondary pixel...')
-		const res = await this.metaCapiService.testEvent(
+		const res = await this.metaCapiService.trackPageView(
 			{
 				em: '<USER_EMAIL>',
 			},
-			'TEST47858',
 			'secondary',
+			'TEST61141',
 		)
 		this.logger.log('Test event sent to secondary pixel.', JSON.stringify(res))
 		return res

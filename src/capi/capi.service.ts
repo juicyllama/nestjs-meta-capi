@@ -114,37 +114,34 @@ export class MetaCapiService {
 	}
 
 	// event helpers
-	trackPageView(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('PageView', eventData, undefined, pixelKey)
+	trackPageView(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('PageView', eventData, test_event_code, pixelKey)
 	}
-	trackLead(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('Lead', eventData, undefined, pixelKey)
+	trackLead(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('Lead', eventData, test_event_code, pixelKey)
 	}
-	trackViewContent(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('ViewContent', eventData, undefined, pixelKey)
+	trackViewContent(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('ViewContent', eventData, test_event_code, pixelKey)
 	}
-	trackAddToCart(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('AddToCart', eventData, undefined, pixelKey)
+	trackAddToCart(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('AddToCart', eventData, test_event_code, pixelKey)
 	}
-	trackInitiateCheckout(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('InitiateCheckout', eventData, undefined, pixelKey)
+	trackInitiateCheckout(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('InitiateCheckout', eventData, test_event_code, pixelKey)
 	}
-	trackPurchase(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('Purchase', eventData, undefined, pixelKey)
+	trackPurchase(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('Purchase', eventData, test_event_code, pixelKey)
 	}
-	trackUpsellPurchase(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('UpsellPurchase', eventData, undefined, pixelKey)
+	trackUpsellPurchase(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('UpsellPurchase', eventData, test_event_code, pixelKey)
 	}
-	trackRebillSuccess(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('RebillSuccess', eventData, undefined, pixelKey)
+	trackRebillSuccess(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('RebillSuccess', eventData, test_event_code, pixelKey)
 	}
-	trackSubscribe(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('Subscribe', eventData, undefined, pixelKey)
+	trackSubscribe(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('Subscribe', eventData, test_event_code, pixelKey)
 	}
-	trackAddPaymentInfo(eventData: MetaCapiEventData, pixelKey?: string) {
-		return this.sendEvent('AddPaymentInfo', eventData, undefined, pixelKey)
-	}
-	testEvent(eventData: MetaCapiEventData, test_event_code: string, pixelKey?: string) {
-		return this.sendEvent('TestEvent', eventData, test_event_code, pixelKey)
+	trackAddPaymentInfo(eventData: MetaCapiEventData, pixelKey?: string, test_event_code?: string) {
+		return this.sendEvent('AddPaymentInfo', eventData, test_event_code, pixelKey)
 	}
 }
